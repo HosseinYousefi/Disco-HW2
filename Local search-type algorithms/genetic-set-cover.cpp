@@ -11,13 +11,13 @@ vector<set<int>> sets;
 
 struct Member {
     vector<bool> chosen;
-    int numOfChosen;
+    int weightOfChosen;
     set<int> covers;
 
-    Member() : chosen(nSets), numOfChosen(0) {}
+    Member() : chosen(nSets), weightOfChosen(0) {}
 
-    int fitness() const {
-        return (nElements - int(covers.size())) * nSets + numOfChosen;
+    pair<int, int> fitness() const {
+        return {nElements - int(covers.size()),  weightOfChosen};
     }
 
     bool operator<(const Member& m) {
@@ -26,13 +26,13 @@ struct Member {
 
     void addSet(int i) {
         chosen[i] = true;
-        ++numOfChosen;
+        weightOfChosen += weight[i];
         for (int element : sets[i])
             covers.insert(element);
     }
 };
 
-const int POPULATION = 100;
+const int POPULATION = 10000;
 array<Member, POPULATION> population;
 
 Member crossover(const Member& a, const Member& b) {
@@ -79,10 +79,10 @@ void output() {
 
 void runGenetic() {
     populate();
-    // running for 9.5 secs
+    // running for 9 secs accounting for input/output
     time_t start = time(nullptr);
     int numOfGen = 0;
-    while (difftime(start, time(nullptr)) < 9.5) {
+    while (difftime(time(nullptr), start) < 9.0) {
         sort(population.begin(), population.end());
         
         array<Member, POPULATION> newGeneration;
@@ -101,8 +101,8 @@ void runGenetic() {
         population = newGeneration;
         ++numOfGen;
 
-        cerr << numOfGen << endl;
-        output();
+        // cerr << numOfGen << endl;
+        // output();
     }
 }
 
@@ -123,7 +123,6 @@ void input() {
             sets[i].insert(element);
         }
     }
-    cerr << "input done" << endl;
 }
 
 int main() {
